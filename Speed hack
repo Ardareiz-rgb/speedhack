@@ -1,0 +1,109 @@
+-- Services
+local TweenService = game:GetService("TweenService")
+
+-- Create ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- Create the main speed GUI (starts hidden)
+local speedGui = Instance.new("Frame")
+speedGui.Size = UDim2.new(0, 0, 0, 0)  -- Start small for animation
+speedGui.Position = UDim2.new(0.5, -75, 0.4, 0)  -- Centered
+speedGui.BackgroundColor3 = Color3.fromRGB(128, 128, 128)  -- Gray color
+speedGui.Visible = false
+speedGui.Parent = screenGui
+
+-- Create TextBox (small input field inside the speed GUI)
+local textBox = Instance.new("TextBox")
+textBox.Size = UDim2.new(0, 150, 0, 30)  -- Small size
+textBox.Position = UDim2.new(0, 0, 0, 0)
+textBox.Text = "Enter speed"
+textBox.Parent = speedGui
+
+-- Create On button
+local onButton = Instance.new("TextButton")
+onButton.Size = UDim2.new(0, 70, 0, 30)
+onButton.Position = UDim2.new(0, 0, 1, -90)  -- Below the text box
+onButton.Text = "On"
+onButton.Parent = speedGui
+
+-- Create Off button
+local offButton = Instance.new("TextButton")
+offButton.Size = UDim2.new(0, 70, 0, 30)
+offButton.Position = UDim2.new(0, 80, 1, -90)  -- Right of On button
+offButton.Text = "Off"
+offButton.Parent = speedGui
+
+-- Create Label for "Sroxxy"
+local sroxxyLabel = Instance.new("TextLabel")
+sroxxyLabel.Size = UDim2.new(0, 150, 0, 20)
+sroxxyLabel.Position = UDim2.new(0, 0, 1, -20)  -- Below the On/Off buttons
+sroxxyLabel.Text = "Sroxxy"
+sroxxyLabel.TextColor3 = Color3.new(1, 1, 1)  -- White text
+sroxxyLabel.BackgroundTransparency = 1  -- Transparent background
+sroxxyLabel.Parent = speedGui
+
+-- Create Circular Toggle Button
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(0, 40, 0, 40)  -- Smaller circular button
+toggleButton.Position = UDim2.new(0, 10, 0, 10)  -- Slightly moved to the right
+toggleButton.Text = "O"
+toggleButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+toggleButton.Parent = screenGui
+toggleButton.ClipsDescendants = true
+toggleButton.AutoButtonColor = false
+toggleButton.TextScaled = true
+toggleButton.TextColor3 = Color3.new(0, 0, 0)
+toggleButton.BorderSizePixel = 0
+local uicorner = Instance.new("UICorner")
+uicorner.CornerRadius = UDim.new(1, 0)
+uicorner.Parent = toggleButton  -- Make it circular
+
+-- Animations for showing/hiding the speed GUI
+local showTweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local hideTweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+
+local showTween = TweenService:Create(speedGui, showTweenInfo, {Size = UDim2.new(0, 150, 0, 150), Position = UDim2.new(0.5, -75, 0.4, 0)})
+local hideTween = TweenService:Create(speedGui, hideTweenInfo, {Size = UDim2.new(0, 0, 0, 0), Position = UDim2.new(0.5, 0, 0.4, 0)})
+
+-- Action for the Toggle Button to show/hide the speed GUI with animation
+local isGuiVisible = false
+toggleButton.MouseButton1Click:Connect(function()
+    isGuiVisible = not isGuiVisible  -- Toggle the visibility state
+    
+    if isGuiVisible then
+        speedGui.Visible = true
+        showTween:Play()  -- Animate opening
+    else
+        hideTween:Play()  -- Animate closing
+        hideTween.Completed:Connect(function() speedGui.Visible = false end)
+    end
+end)
+
+-- Action for On button press (changes speed)
+onButton.MouseButton1Click:Connect(function()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:FindFirstChild("Humanoid")
+    
+    -- Get the entered speed value
+    local speedValue = tonumber(textBox.Text)
+    
+    -- If a valid number is entered
+    if speedValue and speedValue > 0 then
+        humanoid.WalkSpeed = speedValue  -- Update the player's walk speed
+        print("Player speed: " .. speedValue)
+    else
+        print("Please enter a valid number!")
+    end
+end)
+
+-- Action for Off button press (resets speed to 17)
+offButton.MouseButton1Click:Connect(function()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:FindFirstChild("Humanoid")
+    
+    humanoid.WalkSpeed = 17  -- Reset speed to 17 (default speed)
+    print("Speed reset to 17.")
+end)
